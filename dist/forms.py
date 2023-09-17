@@ -16,5 +16,7 @@ class LoginForm(FlaskForm):
 
 class PostForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
+    price = StringField('Price', validators=[DataRequired()])
+    picture = FileField('Insert Image', validators=[FileAllowed(['jpg', 'png'])])
     content = TextAreaField('Content', validators=[DataRequired()])
     submit = SubmitField('Post')
