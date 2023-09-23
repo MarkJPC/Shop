@@ -29,7 +29,9 @@ posts = [
 @app.route('/')
 @app.route('/shop')
 def shop():
-    posts = Post.query.all()
+    page = request.args.get('page', 1, type=int)
+    # get only a specific amount of posts per page
+    posts = Post.query.order_by(Post.date_posted.desc()).paginate(page=page, per_page=3)
     return render_template('shop.html', title='Shop', posts=posts)
 
 
@@ -116,17 +118,20 @@ def update_post(post_id):
     post = Post.query.get_or_404(post_id)
     form = PostForm()
     if form.validate_on_submit():
-        post.title = form.title.data
-        post.price = form.price.data
-        post.image_file = form.picture.data
-        post.content = form.content.data
-        db.session.commit()
-        flash('Your post has been updated!', 'success')
-        return redirect(url_for('post', post_id=post_id))
+        if form.picture.data:
+            picture_file = save_picture(form.picture.data)
+
+            post.title = form.title.data
+            post.price = form.price.data
+            post.image_file = picture_file
+            post.content = form.content.data
+            db.session.commit()
+            flash('Your post has been updated!', 'success')
+            return redirect(url_for('post', post_id=post_id))
     elif request.method == 'GET':
         form.title.data = post.title
-        post.price = form.price.data
-        post.image_file = form.picture.data
+        form.price.data = post.price
+        form.picture.data = post.image_file
         form.content.data = post.content
     return render_template('create_post.html', 
                            title='Update Post',
@@ -142,7 +147,7 @@ def delete_post(post_id):
     db.session.delete(post)
     db.session.commit()
     flash('Your post has been deleted!', 'success')
-    return redirect(url_for('home'))
+    return redirect(url_for('shop'))
 
 @app.route('/post/<int:post_id>')
 def post(post_id):
