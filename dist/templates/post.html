@@ -1,9 +1,47 @@
 {% extends "index.html" %}
 {% block content %}
-  <article class="media content-section">
-    <div class="media-body" style="position: relative;">
-      <div class="article-metadata">
+    <style>
+        #myContainer {
+            display: flex;
+            align-items: flex-start;
+            background-color: #343a40;
+        }
+
+        #myImage {
+            max-width: 100%;
+            height: auto;
+        }
+
+        #myDescription {
+            position:absolute;
+            width: auto;
+            height: auto;
+            left: calc(100% + 20px);
+            min-width: 50%;  
+            margin-left: 20px; /* Adjust this value to increase or decrease padding */
+            overflow-wrap: break-word;
+        }
+
+        #myButtons {
+            display: flex;
+            justify-content: center;
+            gap: 10px; /* Adjust this value to increase or decrease spacing between buttons */
+        }
+
+        article {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+    </style>
+
+  <article>
+    <div style="text-align: center;">
         <small class="text-muted">{{ post.date_posted.strftime('%Y-%m-%d') }}</small>
+        <h2 class="article-title">{{ post.title }}</h2>
+        <h3 class="article-title">{{ post.price }}</h3>
+    </div>
+    <div id="myButtons">
         {% if post.author == current_user %}
           <div>
             <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('update_post', post_id=post.id) }}">Update</a>
@@ -11,20 +49,9 @@
           </div>
         {% endif %}
       </div>
-      <h2 class="article-title">{{ post.title }}</h2>
-      <h3 class="article-title">{{ post.price }}</h3>
-      <img src="{{ url_for('static', filename='profile_pics/' + post.image_file) }}" 
-      style="display: block; 
-      margin-left: auto; 
-      margin-right: auto; 
-      border-radius: 0;
-      max-width: 200%;
-      max-height: 200%;
-      height: auto;
-      border-radius: 5px;
-      transform: translate(-23%, 0%);
-      ">
-      <p class="article-content" style="border: 2px solid gray; border-radius: 10px; margin-top: 20px; padding: 10px">{{ post.content }}</p>
+    <div id="myContainer">
+      <img id="myImage" src="{{ url_for('static', filename='profile_pics/' + post.image_file) }}">
+      <p id="myDescription">{{ post.content }}</p>
     </div>
   </article>
   <!-- Modal -->
