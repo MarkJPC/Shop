@@ -5,21 +5,19 @@
             display: flex;
             align-items: flex-start;
             background-color: #343a40;
+            border-radius: 20px;
+            overflow: hidden;
+            color: wheat;
         }
 
         #myImage {
             max-width: 100%;
             height: auto;
+            object-fit: cover;
         }
 
         #myDescription {
-            position:absolute;
-            width: auto;
-            height: auto;
-            left: calc(100% + 20px);
-            min-width: 50%;  
-            margin-left: 20px; /* Adjust this value to increase or decrease padding */
-            overflow-wrap: break-word;
+           margin-left: 10px;
         }
 
         #myButtons {
@@ -35,42 +33,51 @@
         }
     </style>
 
-  <article>
+  <section class="py-5">
     <div style="text-align: center;">
-        <small class="text-muted">{{ post.date_posted.strftime('%Y-%m-%d') }}</small>
-        <h2 class="article-title">{{ post.title }}</h2>
-        <h3 class="article-title">{{ post.price }}</h3>
+      <small class="text-muted">{{ post.date_posted.strftime('%Y-%m-%d') }}</small>
+      <h2 class="article-title">{{ post.title }}</h2>
+      <h3 class="article-title">{{ post.price }}</h3>
     </div>
     <div id="myButtons">
-        {% if post.author == current_user %}
-          <div>
-            <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('update_post', post_id=post.id) }}">Update</a>
-            <button type="button" class="btn btn-danger btn-sm m-1" data-bs-toggle="modal" data-bs-target="#deleteModal">Delete</button>
+      {% if post.author == current_user %}
+        <div>
+          <a class="btn btn-secondary btn-sm mt-1 mb-1" href="{{ url_for('update_post', post_id=post.id) }}">Update</a>
+          <button type="button" class="btn btn-danger btn-sm m-1" data-bs-toggle="modal" data-bs-target="#deleteModal">Delete</button>
+        </div>
+      {% endif %}
+    </div>
+    <div class="container px-4 px-lg-5 mt-5">
+
+      <div id="myContainer">
+        <img id="myImage" src="{{ url_for('static', filename='profile_pics/' + post.image_file) }}">
+        <p id="myDescription">{{ post.content|safe }}</p>
+      </div>
+
+        <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+          <article>
+            
+          </article>
+          <!-- Modal -->
+          <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
+            <div class="modal-dialog" role="document">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h5 class="modal-title" id="deleteModalLabel">Delete Post?</h5>
+                  <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                  </button>
+                </div>
+                <div class="modal-footer">
+                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  <form action="{{ url_for('delete_post', post_id=post.id) }}" method="POST">
+                    <input class="btn btn-danger" type="submit" value="Delete">
+                  </form>
+                </div>
+              </div>
+            </div>
           </div>
-        {% endif %}
-      </div>
-    <div id="myContainer">
-      <img id="myImage" src="{{ url_for('static', filename='profile_pics/' + post.image_file) }}">
-      <p id="myDescription">{{ post.content }}</p>
-    </div>
-  </article>
-  <!-- Modal -->
-  <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="deleteModalLabel">Delete Post?</h5>
-          <button type="button" class="close" data-bs-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
         </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <form action="{{ url_for('delete_post', post_id=post.id) }}" method="POST">
-            <input class="btn btn-danger" type="submit" value="Delete">
-          </form>
-        </div>
-      </div>
     </div>
-  </div>
+  </section>
 {% endblock content %}

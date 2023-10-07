@@ -120,14 +120,14 @@ def update_post(post_id):
     if form.validate_on_submit():
         if form.picture.data:
             picture_file = save_picture(form.picture.data)
-
-            post.title = form.title.data
-            post.price = form.price.data
             post.image_file = picture_file
-            post.content = form.content.data
-            db.session.commit()
-            flash('Your post has been updated!', 'success')
-            return redirect(url_for('post', post_id=post_id))
+
+        post.title = form.title.data
+        post.price = form.price.data
+        post.content = form.content.data
+        db.session.commit()
+        flash('Your post has been updated!', 'success')
+        return redirect(url_for('post', post_id=post_id))
     elif request.method == 'GET':
         form.title.data = post.title
         form.price.data = post.price
