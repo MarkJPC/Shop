@@ -6,8 +6,7 @@
             align-items: flex-start;
             background-color: #343a40;
             border-radius: 20px;
-            overflow: hidden;
-            color: wheat;
+            color: white;
         }
 
         #myImage {
@@ -17,7 +16,7 @@
         }
 
         #myDescription {
-           margin-left: 10px;
+            margin: 10px;
         }
 
         #myButtons {
@@ -31,6 +30,16 @@
             flex-direction: column;
             align-items: center;
         }
+
+    
+        #myImageViewer .myImage {
+            display: none;
+        }
+
+        #myImageViewer .active {
+            display: block;
+        }
+
     </style>
 
   <section class="py-5">
@@ -48,16 +57,20 @@
       {% endif %}
     </div>
     <div class="container px-4 px-lg-5 mt-5">
+      <div id="myContainer">       
 
-      <div id="myContainer">
-        <img id="myImage" src="{{ url_for('static', filename='profile_pics/' + post.image_file) }}">
-        <p id="myDescription">{{ post.content|safe }}</p>
+        <div id="myImageViewer">
+            {% for photo in post.album_photos %}
+                <img src="{{ url_for('static', filename='profile_pics/' + photo.filename) }}" class="myImage">
+            {% endfor %}
+        </div>
+
+        <button id="prev">Previous</button>
+        <button id="next">Next</button>
+
+        <div id="myDescription">{{ post.content|safe }}</div>
       </div>
-
         <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
-          <article>
-            
-          </article>
           <!-- Modal -->
           <div class="modal fade" id="deleteModal" tabindex="-1" role="dialog" aria-labelledby="deleteModalLabel" aria-hidden="true">
             <div class="modal-dialog" role="document">
@@ -80,4 +93,29 @@
         </div>
     </div>
   </section>
+
+  <script>
+    console.log(document.querySelectorAll('.myImage'))
+    let images = document.querySelectorAll('#myImageViewer .myImage');
+    let currentIndex = 0;
+
+    console.log(images)
+
+    // Start by making the first image active
+    images[currentIndex].classList.add('active');
+
+    document.querySelector('#next').addEventListener('click', function() {
+        // Remove 'active' class from current image and add to next one
+        images[currentIndex].classList.remove('active');
+        currentIndex = (currentIndex + 1) % images.length; // Loop back to first image if at end
+        images[currentIndex].classList.add('active');
+    });
+
+    document.querySelector('#prev').addEventListener('click', function() {
+        // Remove 'active' class from current image and add to previous one
+        images[currentIndex].classList.remove('active');
+        currentIndex = (currentIndex - 1 + images.length) % images.length; // Loop back to last image if at start
+        images[currentIndex].classList.add('active');
+    });
+</script>
 {% endblock content %}
