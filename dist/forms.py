@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
-from flask_wtf.file import FileField, FileAllowed
+from flask_wtf.file import FileField, FileAllowed, FileRequired
 from flask_login import current_user
-from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField
+from wtforms import StringField, PasswordField, SubmitField, BooleanField, TextAreaField, FieldList, FormField
 from wtforms.validators import DataRequired, Length, Email, EqualTo, ValidationError
 from dist.models import User
 
@@ -14,9 +14,16 @@ class LoginForm(FlaskForm):
     submit = SubmitField('Login')
 
 
+class PhotoForm(FlaskForm):
+    photo = FileField('Photo', validators=[FileAllowed(['jpg', 'png'])])
+
+
 class PostForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
     price = StringField('Price', validators=[DataRequired()])
-    picture = FileField('Insert Image', validators=[FileAllowed(['jpg', 'png'])])
+
+    cover_photo = FileField('Cover Photo', validators=[FileAllowed(['jpg', 'png'])])
+    album_photos = FieldList(FormField(PhotoForm), min_entries=1, max_entries=20)
+
     content = TextAreaField('Content', validators=[DataRequired()])
     submit = SubmitField('Post')

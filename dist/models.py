@@ -26,11 +26,25 @@ class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(100), nullable=False)
     price = db.Column(db.String(100), nullable=False)
-    image_file = db.Column(db.String(20), nullable=False, default='default.jpg')
     date_posted = db.Column(db.DateTime, nullable=False, default=datetime.utcnow)
     content = db.Column(db.Text, nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
+    cover_photo = db.relationship('CoverPhoto', backref='post', lazy=True, uselist=False)
+    album_photos = db.relationship('AlbumPhoto', backref='post', lazy=True)
 
 
     def __repr__(self):
         return f"User('{self.title}', '{self.date_posted}')"
+    
+
+# Classes for cover photo and album photos. Each post can have one cover photo and multiple album photos
+class CoverPhoto(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    filename = db.Column(db.String(20), nullable=False, default='default.jpg')
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+
+
+class AlbumPhoto(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    filename = db.Column(db.String(20), nullable=False)
+    post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)

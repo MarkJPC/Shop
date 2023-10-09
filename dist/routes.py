@@ -1,30 +1,12 @@
 import os, secrets
-from flask import render_template, url_for, flash, redirect, request, abort
+from flask import render_template, url_for, flash, redirect, request, abort, Markup
 from dist import app, db, bcrypt
 from flask_login import current_user, login_required, logout_user, login_user
 from dist.forms import LoginForm, PostForm
-from dist.models import User, Post
+from dist.models import User, Post, CoverPhoto, AlbumPhoto
 from PIL import Image
 
 user = User(username="admin", email="admin@shop.com", password="#shop@farm2000")
-
-"""
-posts = [
-    {
-        'author': 'Corey Schafer',
-        'title': 'Blog Post 1',
-        'content': 'First post content',
-        'date_posted': 'April 20, 2018'
-    },
-    {
-        'author': 'Jane Doe',
-        'title': 'Blog Post 2',
-        'content': 'Second post content',
-        'date_posted': 'April 21, 2018'
-    }
-]
-"""
-
 
 @app.route('/')
 @app.route('/shop')
@@ -70,12 +52,19 @@ def save_picture(form_picture):
     picture_fn = random_hex + f_ext
     picture_path = os.path.join(app.root_path, 'static/profile_pics', picture_fn)
 
-    output_size = (500, 500)
+    output_size = (1000, 1000)
     i = Image.open(form_picture)
-    i.thumbnail(output_size)
+    i.thumbnail(output_size, Image.ANTIALIAS)
     i.save(picture_path)
 
     return picture_fn
+
+
+def delete_picture(picture_fn):
+    picture_path = os.path.join(app.root_path, 'static/profile_pics', picture_fn)
+
+    if os.path.isfile(picture_path):
+        os.remove(picture_path)
 
 
 @app.route('/post/new', methods=['GET', 'POST'])
@@ -87,18 +76,31 @@ def new_post():
     
     # check if form validates
     if form.validate_on_submit():
-
-        # deal with picture
-        if form.picture.data:
+        print("form validated")
+        # make sure cover photo exists
+        if form.cover_photo.data:
             print("picture exists")
-            picture_file = save_picture(form.picture.data)
+            # save cover photo
+            cover_photo_filename = save_picture(form.cover_photo.data)
+            cover_photo = CoverPhoto(filename=cover_photo_filename)
+
+            # save album photos
+            album_photos = []
+            for photo_file in request.files.getlist('album_photos-0-photo'):
+                if photo_file:
+                    print(photo_file)
+                    album_photo_filename = save_picture(photo_file)
+                    album_photo = AlbumPhoto(filename=album_photo_filename)
+                    album_photos.append(album_photo)
 
             # create post object
             post = Post(title=form.title.data, 
                         price=form.price.data, 
-                        image_file=picture_file,
                         content=form.content.data,
-                        author=current_user)
+                        author=current_user,
+                        cover_photo=cover_photo,
+                        album_photos=album_photos)
+
             # add post to database and commit
             db.session.add(post)
             db.session.commit()
@@ -106,10 +108,15 @@ def new_post():
             return redirect(url_for('shop'))
         else:
             print("picture does not exist")
+
+    else:
+        print(form.errors)
+    
     return render_template('create_post.html',
                            title='New Post',
                            form=form,
                            legend='New Post')
+
 
 
 @app.route('/post/<int:post_id>/update', methods=['GET', 'POST'])
@@ -118,9 +125,20 @@ def update_post(post_id):
     post = Post.query.get_or_404(post_id)
     form = PostForm()
     if form.validate_on_submit():
-        if form.picture.data:
-            picture_file = save_picture(form.picture.data)
-            post.image_file = picture_file
+        if form.cover_photo.data:
+            cover_photo_filename = save_picture(form.cover_photo.data)
+            post.cover_photo.filename = cover_photo_filename
+
+        if form.album_photos.data[0]['photo']:
+            for photo_file in request.files.getlist('album_photos-0-photo'):
+                album_photo_filename = save_picture(photo_file)
+                album_photo = AlbumPhoto.query.filter_by(post_id=post.id).first()
+                if album_photo:
+                    album_photo.filename = album_photo_filename
+                else:
+                    new_album_photo = AlbumPhoto(filename=album_photo_filename, post_id=post.id)
+                    db.session.add(new_album_photo)
+
 
         post.title = form.title.data
         post.price = form.price.data
@@ -131,7 +149,10 @@ def update_post(post_id):
     elif request.method == 'GET':
         form.title.data = post.title
         form.price.data = post.price
-        form.picture.data = post.image_file
+        form.content.data = post.content
+        form.cover_photo.data = post.cover_photo.filename
+        for i, album_photo in enumerate(post.album_photos):
+            form.album_photos[i].photo.data = album_photo.filename
         form.content.data = post.content
     return render_template('create_post.html', 
                            title='Update Post',
@@ -144,6 +165,13 @@ def delete_post(post_id):
     post = Post.query.get_or_404(post_id)
     if post.author != current_user:
         abort(403)
+
+    # delete associated album photos
+    for photo in post.album_photos:
+        delete_picture(photo.filename)
+        db.session.delete(photo)
+    delete_picture(post.cover_photo.filename)
+    db.session.delete(post.cover_photo)
     db.session.delete(post)
     db.session.commit()
     flash('Your post has been deleted!', 'success')
