@@ -15,15 +15,20 @@ class LoginForm(FlaskForm):
 
 
 class PhotoForm(FlaskForm):
-    photo = FileField('Photo', validators=[FileAllowed(['jpg', 'png'])])
+    photo = FileField('Photo', validators=[FileAllowed(['jpg', 'png','jpeg'])])
 
 
 class PostForm(FlaskForm):
     title = StringField('Title', validators=[DataRequired()])
     price = StringField('Price', validators=[DataRequired()])
 
-    cover_photo = FileField('Cover Photo', validators=[FileAllowed(['jpg', 'png'])])
+    cover_photo = FileField('Cover Photo', validators=[FileAllowed(['jpg', 'png', 'jpeg'])])
     album_photos = FieldList(FormField(PhotoForm), min_entries=1, max_entries=20)
 
     content = TextAreaField('Content', validators=[DataRequired()])
     submit = SubmitField('Post')
+
+
+class AboutForm(FlaskForm):
+    content = TextAreaField('Please enter your information', validators=[DataRequired()])
+    submit = SubmitField('Update')

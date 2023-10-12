@@ -4,8 +4,12 @@
     <div class="col mb-5">
         <div class="card h-100">
             <!-- Product image-->
-            <img class="card-img-top" src="{{ url_for('static', filename='profile_pics/' + post.cover_photo.filename) }}" alt="..." />
-            <!-- Product details-->
+            {% if post.cover_photo %}
+                <img class="card-img-top" src="{{ url_for('static', filename='profile_pics/' + post.cover_photo.filename) }}" alt="..." />
+            {% else %}
+                <img class="card-img-top" src="{{ url_for('static', filename='profile_pics/default.jpg') }}">
+            {% endif %}
+                <!-- Product details-->
             <div class="card-body p-4">
                 <div class="text-center">
                     <!-- Product name-->

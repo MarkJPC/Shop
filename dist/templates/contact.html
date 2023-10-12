@@ -1,3 +1,104 @@
 {% extends "index.html" %}
 {% block content %}
+<script src="https://cdn.ckeditor.com/4.16.0/standard/ckeditor.js"></script>
+<style>
+    .aboutMain {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .aboutContent {
+        background-color: #343a40;
+        border-radius: 20px;
+        color: white;
+        overflow: hidden;
+        margin: 20px;
+        padding: 20px;
+    }
+
+    /* The Modal (background) */
+    .modal {
+        display: none; /* Hidden by default */
+        position: fixed; /* Stay in place */
+        z-index: 1; /* Sit on top */
+        left: 0;
+        top: 0;
+        width: 100%; /* Full width */
+        height: 100%; /* Full height */
+        overflow: auto; /* Enable scroll if needed */
+        background-color: rgb(0,0,0); /* Fallback color */
+        background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+    }
+
+    /* Modal Content/Box */
+    .modal-content {
+        background-color: #fefefe;
+        margin: 15% auto; /* 15% from the top and centered */
+        padding: 20px;
+        border: 1px solid #888;
+        width: 80%; /* Could be more or less, depending on screen size */
+    }
+</style>
+<section class="py-5">
+    <div class="container px-4 px-lg-5 mt-5">
+        <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
+            <div class="aboutMain">
+                <h1>About/Contacts</h1>
+                {% if logged_in %}
+                    <button class="btn btn-secondary btn-sm mt-1 mb-1" href="" id="myBtn">Update</button>
+                {% endif %}
+                <!--Modal Content-->
+                <div id="myModal" class="modal">
+                    <div class="modal-content">
+                        <form id="myForm" action="" method="post">
+                            {{ form.hidden_tag() }}
+                            {{ form.content.label }}<br>
+                            {% if form.content.errors %}
+                                {{ form.content(class="form-control form-control-lg is-invalid", rows=10, id="content") }}
+                                <div class="invalid-feedback">
+                                    {% for error in form.content.errors %}
+                                        <span>{{ error }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                {{ form.content(class="form-control form-control-lg", id="content") }}
+                            {% endif %}
+                            {{ form.submit(class="btn btn-outline-info") }}
+                          </form> 
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="aboutContent">
+            {{ about.content|safe }}
+        </div>
+    </div>
+</section>
+<script>
+    window.onload = function() {
+    var editor = CKEDITOR.replace('content');
+
+        // Get the button that opens the modal
+        var btn = document.getElementById("myBtn");
+
+        var modal = document.getElementById("myModal")
+        // When the user clicks the button, open the modal 
+        btn.onclick = function() {
+            modal.style.display = "block";
+        }
+
+    document.getElementById('myForm').addEventListener('submit', function(event) {
+        editor.updateElement();
+        // Check if editor is not empty
+        if(editor.getData() === '') {
+            event.preventDefault();
+            alert('Please enter your information');
+        } else {
+            // Hide modal
+            document.getElementById('myModal').style.display = 'none';
+        }
+    });
+};
+
+</script>
 {% endblock %}

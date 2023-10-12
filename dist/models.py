@@ -48,3 +48,8 @@ class AlbumPhoto(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     filename = db.Column(db.String(20), nullable=False)
     post_id = db.Column(db.Integer, db.ForeignKey('post.id'), nullable=False)
+
+
+class AboutContent(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    content = db.Column(db.Text, nullable=False)

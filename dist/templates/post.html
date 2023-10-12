@@ -10,14 +10,9 @@
             overflow: hidden;
         }
 
-        #myImage {
-            max-width: 100%;
-            height: auto;
-            object-fit: cover;
-        }
 
         #myDescription {
-            margin: 10px;
+            margin: 20px;
         }
 
         #myButtons {
@@ -32,17 +27,56 @@
             align-items: center;
         }
 
+        #myImageViewer {
+          height: auto;
+          border-radius: 10px;
+          overflow: hidden;
+        }
     
         #myImageViewer .myImage {
             display: none;
-            width: 300px;
-            height: 200px;
             object-fit: cover;
         }
 
         #myImageViewer .active {
             display: block;
         }
+
+        #imageViewerContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #imageViewerContainer img{
+          max-width: 150%;
+          width: auto;
+          height: 550px;
+        }
+
+        .imageViewerContainer .buttonContainer {
+          display: flex;
+          justify-content: space-between;
+          width: 50%; /* Adjust as needed */
+          margin: 0 auto; /* Center the container */
+        }
+
+        
+        #imageViewerContainer button{
+          margin: 10px; /* Space around buttons */
+          padding: 10px; /* Space inside buttons */
+        }
+       
+
+        #imageViewerContainer #prev {
+          align-self: flex-start; /* Align to the left */
+        }
+
+        #imageViewerContainer #next {
+          align-self: flex-end; /* Align to the right */
+        }
+
 
     </style>
 
@@ -61,17 +95,18 @@
       {% endif %}
     </div>
     <div class="container px-4 px-lg-5 mt-5">
-      <div id="myContainer">       
-
+      <div id="imageViewerContainer">
         <div id="myImageViewer">
-            {% for photo in post.album_photos %}
-                <img src="{{ url_for('static', filename='profile_pics/' + photo.filename) }}" class="myImage">
-            {% endfor %}
+          {% for photo in post.album_photos %}
+              <img src="{{ url_for('static', filename='profile_pics/' + photo.filename) }}" class="myImage">
+          {% endfor %}
         </div>
-
-        <button id="prev">Previous</button>
-        <button id="next">Next</button>
-
+        <div class="myButtonContainer">
+              <button id="prev" class="btn btn-outline-info">Previous</button>
+              <button id="next" class="btn btn-outline-info">Next</button>
+        </div>
+      </div>
+      <div id="myContainer">       
         <div id="myDescription">{{ post.content|safe }}</div>
       </div>
         <div class="row gx-4 gx-lg-5 row-cols-2 row-cols-md-3 row-cols-xl-4 justify-content-center">
